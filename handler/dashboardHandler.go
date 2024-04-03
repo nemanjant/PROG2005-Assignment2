@@ -46,121 +46,139 @@ func DashboardGet(w http.ResponseWriter, r *http.Request) {
 	} else {
 		responseDashboard:= data.DashboardResponse{}
 
-	// Retrievinig data from REST Countries API, latitude, longitude, capital, area, population
-	response, err := GetContent(data.PATH_RESTCOUNTRIES_API+allRegistrations[id].ISOcode)
-		if err != nil {
-	 	log.Fatal(err)
+		var apendix string
+
+		 if allRegistrations[id].Country=="" {
+		 	apendix=allRegistrations[id].ISOcode
+		 } else if allRegistrations[id].ISOcode=="" {
+			response, err := GetContent(data.PATH_RESTCOUNTRIES_API_NAME+allRegistrations[id].Country)
+				if err != nil {
+	 			log.Fatal(err)
+				}
+			
+			requestApendix:= data.Apendix{}
+			json.Unmarshal(response, &requestApendix)
+			
+			apendix=requestApendix[0].Cca2
+		} else {
+			apendix=allRegistrations[id].ISOcode
 		}
 
-	requestCountry:= data.CountryRequest{}
-	json.Unmarshal(response, &requestCountry)
+		// Retrievinig data from REST Countries API, latitude, longitude, capital, area, population
+		response, err := GetContent(data.PATH_RESTCOUNTRIES_API+apendix)
+		if err != nil {
+	 		log.Fatal(err)
+			}
 
-	var capital = requestCountry[0].Capital[0]
-	var latitude = requestCountry[0].Latlng[0]
-	var longitude = requestCountry[0].Latlng[1]
-	var currency string
-	
-	for key:= range requestCountry[0].Currencies {
-		currency = key
-	}
+		requestCountry:= data.CountryRequest{}
+		json.Unmarshal(response, &requestCountry)
 
-	responseDashboard.ISOcode=allRegistrations[id].ISOcode
-	responseDashboard.Country=allRegistrations[id].Country
-
-	// If stattmets for optional imput in configuration registration, bool values
-	if (allRegistrations[id].Features.Precipitation) {
-
-		latstring:= fmt.Sprintf("%f", latitude)
-		lonstring:= fmt.Sprintf("%f", longitude)
+		var capital = requestCountry[0].Capital[0]
+		var latitude = requestCountry[0].Latlng[0]
+		var longitude = requestCountry[0].Latlng[1]
+		var currency string
 		
-		responseMeteo:=data.MeteoRequest{}
+		for key:= range requestCountry[0].Currencies {
+			currency = key
+		}
 
-		// Retrievinig data from Open-Meteo APIs, precipitation
-		response, err := GetContent("https://api.open-meteo.com/v1/forecast?latitude="+latstring+"&longitude="+lonstring+"&daily=precipitation_sum&forecast_days=1")
+		responseDashboard.ISOcode=allRegistrations[id].ISOcode
+		responseDashboard.Country=allRegistrations[id].Country
+
+		// If stattmets for optional imput in configuration registration, bool values
+		if (allRegistrations[id].Features.Precipitation) {
+
+			latstring:= fmt.Sprintf("%f", latitude)
+			lonstring:= fmt.Sprintf("%f", longitude)
+			
+			responseMeteo:=data.MeteoRequest{}
+
+			// Retrievinig data from Open-Meteo APIs, precipitation
+			response, err := GetContent("https://api.open-meteo.com/v1/forecast?latitude="+latstring+"&longitude="+lonstring+"&daily=precipitation_sum&forecast_days=1")
+				if err != nil {
+				log.Fatal(err)
+				}
+
+			json.Unmarshal(response, &responseMeteo)
+
+			responseDashboard.Features.Precipitation=float32(responseMeteo.Daily.PrecipitationSum[0])
+		} 
+
+		if (allRegistrations[id].Features.Temperature) {
+
+			latstring:= fmt.Sprintf("%f", latitude)
+			lonstring:= fmt.Sprintf("%f", longitude)
+			
+			responseMeteo:=data.MeteoRequest{}
+
+			// Retrievinig data from Open-Meteo APIs, temperature
+			response, err := GetContent("https://api.open-meteo.com/v1/forecast?latitude="+latstring+"&longitude="+lonstring+"&daily=temperature_2m_max,temperature_2m_min&forecast_days=1")
 			if err != nil {
-	 		log.Fatal(err)
-			}
+				log.Fatal(err)
+				}
 
-		json.Unmarshal(response, &responseMeteo)
+			json.Unmarshal(response, &responseMeteo)
 
-		responseDashboard.Features.Precipitation=float32(responseMeteo.Daily.PrecipitationSum[0])
-	} 
+			temperature2MMin:=float32(responseMeteo.Daily.Temperature2MMin[0])
+			temperature2MMax:=float32(responseMeteo.Daily.Temperature2MMax[0])
 
-	if (allRegistrations[id].Features.Temperature) {
+			averageTemperature2M:=(temperature2MMin+temperature2MMax) / 2
 
-		latstring:= fmt.Sprintf("%f", latitude)
-		lonstring:= fmt.Sprintf("%f", longitude)
-		
-		responseMeteo:=data.MeteoRequest{}
+			responseDashboard.Features.Temperature=averageTemperature2M
+		} 
 
-		// Retrievinig data from Open-Meteo APIs, temperature
-		response, err := GetContent("https://api.open-meteo.com/v1/forecast?latitude="+latstring+"&longitude="+lonstring+"&daily=temperature_2m_max,temperature_2m_min&forecast_days=1")
-		if err != nil {
-	 		log.Fatal(err)
-			}
+		if (allRegistrations[id].Features.Capital) {
+			responseDashboard.Features.Capital=capital
+		}
 
-		json.Unmarshal(response, &responseMeteo)
+		if (allRegistrations[id].Features.Coordinates) {
+			responseDashboard.Features.Coordinates.Latitude=latitude
+			responseDashboard.Features.Coordinates.Longitude=longitude
+		} 
 
-		temperature2MMin:=float32(responseMeteo.Daily.Temperature2MMin[0])
-		temperature2MMax:=float32(responseMeteo.Daily.Temperature2MMax[0])
+		if (allRegistrations[id].Features.Population) {
+			responseDashboard.Features.Population=requestCountry[0].Population
+		} 
 
-		averageTemperature2M:=(temperature2MMin+temperature2MMax) / 2
+		if (allRegistrations[id].Features.Area) {
+			responseDashboard.Features.Area=requestCountry[0].Area
+		} 
 
-		responseDashboard.Features.Temperature=averageTemperature2M
-	} 
+		// Retrievinig data from Currency API
+		if len(allRegistrations[id].Features.TargetCurrencies)>0 {
+			response, err := GetContent(data.PATH_CURRENCY_API+currency)
+			if err != nil {
+				log.Fatal(err)
+				}
+			
+			responseCurrency:=data.CurrencyRequest{}
+			
+			json.Unmarshal(response, &responseCurrency)
 
-	if (allRegistrations[id].Features.Capital) {
-		responseDashboard.Features.Capital=capital
-	}
+			currentCurrencies:= make(map[string]float32)
 
-	if (allRegistrations[id].Features.Coordinates) {
-		responseDashboard.Features.Coordinates.Latitude=latitude
-		responseDashboard.Features.Coordinates.Longitude=longitude
-	} 
-
-	if (allRegistrations[id].Features.Population) {
-		responseDashboard.Features.Population=requestCountry[0].Population
-	} 
-
-	if (allRegistrations[id].Features.Area) {
-		responseDashboard.Features.Area=requestCountry[0].Area
-	} 
-
-	// Retrievinig data from Currency API
-	if len(allRegistrations[id].Features.TargetCurrencies)>0 {
-		response, err := GetContent(data.PATH_CURRENCY_API+currency)
-		if err != nil {
-	 		log.Fatal(err)
-			}
-		
-		responseCurrency:=data.CurrencyRequest{}
-		
-		json.Unmarshal(response, &responseCurrency)
-
-		currentCurrencies:= make(map[string]float32)
-
-		// Checking currencies for given
-		for _, i:=range allRegistrations[id].Features.TargetCurrencies {
-			for j, k:= range responseCurrency.Rates {
-				if j==i {
-					currentCurrencies[j]=k
+			// Checking currencies for given
+			for _, i:=range allRegistrations[id].Features.TargetCurrencies {
+				for j, k:= range responseCurrency.Rates {
+					if j==i {
+						currentCurrencies[j]=k
+					}
 				}
 			}
+
+			responseDashboard.Features.TargetCurrencies=currentCurrencies
 		}
 
-		responseDashboard.Features.TargetCurrencies=currentCurrencies
-	}
+		t := time.Now()
+		formatedTime := t.Format("2006-01-02 15:04:05")
+		responseDashboard.Lastchange = formatedTime
 
-	t := time.Now()
-	formatedTime := t.Format("2006-01-02 15:04:05")
-	responseDashboard.Lastchange = formatedTime
-
-	request,err:=json.Marshal(responseDashboard)
-	if err != nil {
-		http.Error(w, "Error during pretty printing", http.StatusInternalServerError)
-		return
-		}
-	
-	fmt.Fprintln(w,string(request))
+		request,err:=json.Marshal(responseDashboard)
+		if err != nil {
+			http.Error(w, "Error during pretty printing", http.StatusInternalServerError)
+			return
+			}
+		
+		fmt.Fprintln(w,string(request))
 	} 
 }

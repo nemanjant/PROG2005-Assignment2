@@ -70,3 +70,10 @@ type DashboardResponse struct {
 type CurrencyRequest struct {
 	Rates map[string]float32 `json:"rates"`
 }
+
+type Apendix []struct {
+	Name struct {
+		Common string `json:"common"`
+	} `json:"name"`
+	Cca2 string `json:"cca2"`
+}

@@ -52,9 +52,6 @@ func main() {
 		}
 	}()
 
-
-
-
 	port := os.Getenv("PORT")
 	if port == "" {
 		log.Println("$PORT has not been set. Default: 8080")
