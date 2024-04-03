@@ -42,7 +42,7 @@ func main() {
 		log.Println(err)
 		return
 	}
-
+	
 	log.Printf("Result is [%v]", result)
 
 	defer func() {
@@ -51,7 +51,7 @@ func main() {
 			log.Fatal("Closing of the Firebase client failed. Error:", errClose)
 		}
 	}()
-
+	
 	port := os.Getenv("PORT")
 	if port == "" {
 		log.Println("$PORT has not been set. Default: 8080")

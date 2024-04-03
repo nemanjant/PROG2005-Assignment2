@@ -1,2 +1,5 @@
+# Ignored folders
 credentials/
+
+#Ignored files
 *.json
