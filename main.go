@@ -2,13 +2,57 @@ package main
 
 import (
 	"assignment2/myapp/data"
-	"assignment2/myapp/handler"
+	"assignment2/myapp/handler" // Firestore-specific support
+	"context"                   // State handling across API boundaries; part of native GoLang API
 	"log"
 	"net/http"
 	"os"
+
+	firebase "firebase.google.com/go" // Generic firebase support
+	"google.golang.org/api/option"
 )
 
+const collection = "messages"
+
 func main() {
+
+	ctx:= context.Background()
+	conf:=&firebase.Config{ProjectID:"assignment2-8c8dd"}
+	sa := option.WithCredentialsFile("./assignment2-8c8dd-firebase-adminsdk-1q43z-b1f562cd40.json")
+	app, err := firebase.NewApp(ctx, conf, sa)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	client, err:= app.Firestore(ctx)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	ref:=client.Collection(collection).NewDoc()
+	result,err:=ref.Set(ctx,map[string]interface{}{
+		"url": "https://localhost:8080/client/", 
+   		"country": "SRB",                         
+   		"event": "INVOKE",                        
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Printf("Result is [%v]", result)
+
+	defer func() {
+		errClose := client.Close()
+		if errClose != nil {
+			log.Fatal("Closing of the Firebase client failed. Error:", errClose)
+		}
+	}()
+
+
+
 
 	port := os.Getenv("PORT")
 	if port == "" {

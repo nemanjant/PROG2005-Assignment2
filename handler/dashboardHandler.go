@@ -95,7 +95,7 @@ func DashboardGet(w http.ResponseWriter, r *http.Request) {
 
 		// Retrievinig data from Open-Meteo APIs, temperature
 		response, err := GetContent("https://api.open-meteo.com/v1/forecast?latitude="+latstring+"&longitude="+lonstring+"&daily=temperature_2m_max,temperature_2m_min&forecast_days=1")
-			if err != nil {
+		if err != nil {
 	 		log.Fatal(err)
 			}
 
@@ -124,12 +124,12 @@ func DashboardGet(w http.ResponseWriter, r *http.Request) {
 
 	if (allRegistrations[id].Features.Area) {
 		responseDashboard.Features.Area=requestCountry[0].Area
-	}
+	} 
 
 	// Retrievinig data from Currency API
 	if len(allRegistrations[id].Features.TargetCurrencies)>0 {
 		response, err := GetContent(data.PATH_CURRENCY_API+currency)
-			if err != nil {
+		if err != nil {
 	 		log.Fatal(err)
 			}
 		
