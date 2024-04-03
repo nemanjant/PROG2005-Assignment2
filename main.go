@@ -18,7 +18,7 @@ func main() {
 
 	ctx:= context.Background()
 	conf:=&firebase.Config{ProjectID:"assignment2-8c8dd"}
-	sa := option.WithCredentialsFile("./assignment2-8c8dd-firebase-adminsdk-1q43z-b1f562cd40.json")
+	sa := option.WithCredentialsFile("./data/assignment2-8c8dd-firebase-adminsdk-1q43z-b1f562cd40.json")
 	app, err := firebase.NewApp(ctx, conf, sa)
 	if err != nil {
 		log.Println(err)
