@@ -10,9 +10,11 @@ import (
 	"time"
 )
 
+// Storage of all registrations during service run, id auto increment/decrement
 var allRegistrations []data.Registration
 var idRegistration = 1;
 
+// Switch between differnet methods for given handler, new configuration and all configurations
 func ConfigurationsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -25,6 +27,7 @@ func ConfigurationsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Switch between differnet methods for given handler, specific configuration
 func ConfigurationHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -39,6 +42,7 @@ func ConfigurationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Function to create new dashboard register POST Method
 func ConfigurationsPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Add("allow-control-allow-methods", "POST")
@@ -68,6 +72,7 @@ func ConfigurationsPost(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(currentRegistration)
 }
 
+// Function to retrieve all registered configurations GET Method
 func ConfigurationsGet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Add("allow-control-allow-methods", "GET")
@@ -81,6 +86,7 @@ func ConfigurationsGet(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Function to retrieve specific registered configurations GET Method
 func ConfigurationGet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Add("allow-control-allow-methods", "GET")
@@ -106,6 +112,7 @@ func ConfigurationGet(w http.ResponseWriter, r *http.Request) {
 	} 
 }
 
+// Function to update specific registered configurations PUT Method
 func ConfigurationPut(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("content-type", "application/json")
 	w.Header().Add("allow-control-allow-methods", "PUT")
@@ -147,6 +154,7 @@ func ConfigurationPut(w http.ResponseWriter, r *http.Request) {
 		}
 }
 
+// Function to delete specific registered configurations DELETE Method
 func ConfigurationDelete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("content-type", "application/json")
 	w.Header().Add("allow-control-allow-methods", "DELETE")

@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// Switch between differnet methods for given handler
 func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -21,6 +22,7 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Function to retrieve registered dashboard configurations GET Method
 func DashboardGet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("content-type", "application/json")
 	w.Header().Add("method", "GET")
@@ -44,6 +46,7 @@ func DashboardGet(w http.ResponseWriter, r *http.Request) {
 	} else {
 		responseDashboard:= data.DashboardResponse{}
 
+	// Retrievinig data from REST Countries API, latitude, longitude, capital, area, population
 	response, err := GetContent(data.PATH_RESTCOUNTRIES_API+allRegistrations[id].ISOcode)
 		if err != nil {
 	 	log.Fatal(err)
@@ -64,6 +67,7 @@ func DashboardGet(w http.ResponseWriter, r *http.Request) {
 	responseDashboard.ISOcode=allRegistrations[id].ISOcode
 	responseDashboard.Country=allRegistrations[id].Country
 
+	// If stattmets for optional imput in configuration registration, bool values
 	if (allRegistrations[id].Features.Precipitation) {
 
 		latstring:= fmt.Sprintf("%f", latitude)
@@ -71,6 +75,7 @@ func DashboardGet(w http.ResponseWriter, r *http.Request) {
 		
 		responseMeteo:=data.MeteoRequest{}
 
+		// Retrievinig data from Open-Meteo APIs, precipitation
 		response, err := GetContent("https://api.open-meteo.com/v1/forecast?latitude="+latstring+"&longitude="+lonstring+"&daily=precipitation_sum&forecast_days=1")
 			if err != nil {
 	 		log.Fatal(err)
@@ -81,13 +86,14 @@ func DashboardGet(w http.ResponseWriter, r *http.Request) {
 		responseDashboard.Features.Precipitation=float32(responseMeteo.Daily.PrecipitationSum[0])
 	} 
 
-	if (allRegistrations[id].Features.Precipitation) {
+	if (allRegistrations[id].Features.Temperature) {
 
 		latstring:= fmt.Sprintf("%f", latitude)
 		lonstring:= fmt.Sprintf("%f", longitude)
 		
 		responseMeteo:=data.MeteoRequest{}
 
+		// Retrievinig data from Open-Meteo APIs, temperature
 		response, err := GetContent("https://api.open-meteo.com/v1/forecast?latitude="+latstring+"&longitude="+lonstring+"&daily=temperature_2m_max,temperature_2m_min&forecast_days=1")
 			if err != nil {
 	 		log.Fatal(err)
@@ -120,8 +126,9 @@ func DashboardGet(w http.ResponseWriter, r *http.Request) {
 		responseDashboard.Features.Area=requestCountry[0].Area
 	}
 
+	// Retrievinig data from Currency API
 	if len(allRegistrations[id].Features.TargetCurrencies)>0 {
-		response, err := GetContent("http://129.241.150.113:9090/currency/"+currency)
+		response, err := GetContent(data.PATH_CURRENCY_API+currency)
 			if err != nil {
 	 		log.Fatal(err)
 			}
@@ -132,6 +139,7 @@ func DashboardGet(w http.ResponseWriter, r *http.Request) {
 
 		currentCurrencies:= make(map[string]float32)
 
+		// Checking currencies for given
 		for _, i:=range allRegistrations[id].Features.TargetCurrencies {
 			for j, k:= range responseCurrency.Rates {
 				if j==i {
