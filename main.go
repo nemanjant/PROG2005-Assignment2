@@ -19,7 +19,7 @@ func main() {
 
 	ctx:= context.Background()
 
-	opt := option.WithCredentialsFile("./assignment2-8c8dd-firebase-adminsdk-1q43z-b1f562cd40.json")
+	opt := option.WithCredentialsFile("./credentials/assignment2credentials.json")
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		fmt.Printf("error initializing app: %v", err)
