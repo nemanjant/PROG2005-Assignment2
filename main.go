@@ -4,6 +4,7 @@ import (
 	"assignment2/myapp/data"
 	"assignment2/myapp/handler" // Firestore-specific support
 	"context"                   // State handling across API boundaries; part of native GoLang API
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -17,12 +18,12 @@ const collection = "messages"
 func main() {
 
 	ctx:= context.Background()
-	conf:=&firebase.Config{ProjectID:"assignment2-8c8dd"}
-	sa := option.WithCredentialsFile("./data/assignment2-8c8dd-firebase-adminsdk-1q43z-b1f562cd40.json")
-	app, err := firebase.NewApp(ctx, conf, sa)
+
+	opt := option.WithCredentialsFile("./data/assignment2-8c8dd-firebase-adminsdk-1q43z-b1f562cd40.json")
+	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
-		log.Println(err)
-		return
+		fmt.Printf("error initializing app: %v", err)
+  		return 
 	}
 
 	client, err:= app.Firestore(ctx)
