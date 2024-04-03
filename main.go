@@ -19,7 +19,7 @@ func main() {
 
 	ctx:= context.Background()
 
-	opt := option.WithCredentialsFile("./data/assignment2-8c8dd-firebase-adminsdk-1q43z-b1f562cd40.json")
+	opt := option.WithCredentialsFile("./assignment2-8c8dd-firebase-adminsdk-1q43z-b1f562cd40.json")
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		fmt.Printf("error initializing app: %v", err)
@@ -35,7 +35,7 @@ func main() {
 	ref:=client.Collection(collection).NewDoc()
 	result,err:=ref.Set(ctx,map[string]interface{}{
 		"url": "https://localhost:8080/client/", 
-   		"country": "SRB",                         
+   		"country": "NO",                         
    		"event": "INVOKE",                        
 	})
 	if err != nil {
