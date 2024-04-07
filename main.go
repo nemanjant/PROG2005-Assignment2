@@ -61,6 +61,8 @@ func main() {
 	http.HandleFunc(data.PATH_REGISTRATIONS, handler.ConfigurationsHandler)
 	http.HandleFunc(data.PATH_REGISTRATION_ID, handler.ConfigurationHandler)
 	http.HandleFunc(data.PATH_DASHBOARD_ID, handler.DashboardHandler)
+	http.HandleFunc(data.PATH_NOTIFICATIONS, handler.NotificationsHandler)
+	http.HandleFunc(data.PATH_NOTIFICATIONS_ID, handler.NotificationHandler)
 
 	log.Println("Starting server on port " + port + "...")
 	log.Fatal(http.ListenAndServe(":" + port,nil))

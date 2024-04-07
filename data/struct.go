@@ -77,3 +77,14 @@ type Apendix []struct {
 	} `json:"name"`
 	Cca2 string `json:"cca2"`
 }
+
+type Notification struct {
+	Id      string `json:"id"`
+	Url     string `json:"url"`
+	Country string `json:"country"`
+	Event   string `json:"event"`
+}
+
+type CurrentNotification struct {
+	Id      string `json:"id"`
+}
