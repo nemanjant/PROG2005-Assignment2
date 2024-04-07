@@ -86,5 +86,5 @@ type Notification struct {
 }
 
 type CurrentNotification struct {
-	Id      string `json:"id"`
+	Id string `json:"id"`
 }

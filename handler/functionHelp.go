@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-func ToFloat32(in int) float32 {
- 	return float32(in)
-}
-
 // Function to retrieve and close given URL
 func GetContent(url string) ([]byte, error) {
 	response, err := http.Get(url)
@@ -21,6 +17,7 @@ func GetContent(url string) ([]byte, error) {
 	return io.ReadAll(response.Body)
 }
 
+// Function to create random string value
 func GenerateRandomString(length int) string {
     const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     seed := rand.NewSource(time.Now().UnixNano())
@@ -32,4 +29,3 @@ func GenerateRandomString(length int) string {
     }
     return string(result)
 }
-
