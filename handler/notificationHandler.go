@@ -65,6 +65,7 @@ func NotificationsPost(w http.ResponseWriter, r *http.Request) {
 
 	AllNotification = append(AllNotification, notification)
 
+	// Sending registered notification to Firebase/Firestorm databse
 	ctx:= context.Background()
 
 	opt := option.WithCredentialsFile("./credentials/assignment2credentials.json")
@@ -72,20 +73,20 @@ func NotificationsPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Printf("error initializing app: %v", err)
   		return 
-	}
+		}
 
 	client, err:= app.Firestore(ctx)
 	if err != nil {
 		log.Println(err)
 		return
-	}
+		}
 
 	ref:=client.Collection(collection).NewDoc()
 	result,err:=ref.Set(ctx,notification)
-		if err != nil {
-			log.Println(err)
-			return
-	 		}
+	if err != nil {
+		log.Println(err)
+		return
+	 	}
 	
 	log.Printf("Result is [%v]", result)
 		
