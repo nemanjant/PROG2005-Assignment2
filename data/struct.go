@@ -88,3 +88,18 @@ type Notification struct {
 type CurrentNotification struct {
 	Id string `json:"id"`
 }
+
+type WebhookInvoke struct {
+	Id      string `json:"id"`
+	Country string `json:"country"`
+	Event   string `json:"event"`
+	Time    string `json:"time"`
+}
+
+type NotificationFirebase struct {
+	Id      string `json:"id"`
+	Country string `json:"country"`
+	Event   string `json:"event"`
+	Time    string `json:"time"`
+	Url     string `json:"url"`
+}

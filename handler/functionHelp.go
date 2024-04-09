@@ -18,14 +18,14 @@ func GetContent(url string) ([]byte, error) {
 }
 
 // Function to create random string value
-func GenerateRandomString(length int) string {
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    seed := rand.NewSource(time.Now().UnixNano())
-    random := rand.New(seed)
+func IdGenerator(idlength int) string {
+    const char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    start := rand.NewSource(time.Now().UnixNano())
+    new := rand.New(start)
 
-    result := make([]byte, length)
-    for i := range result {
-        result[i] = charset[random.Intn(len(charset))]
+    id := make([]byte, idlength)
+    for i := range id {
+        id[i] = char[new.Intn(len(char))]
     }
-    return string(result)
+    return string(id)
 }

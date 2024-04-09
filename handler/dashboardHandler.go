@@ -2,8 +2,10 @@ package handler
 
 import (
 	"assignment2/myapp/data"
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -173,6 +175,57 @@ func DashboardGet(w http.ResponseWriter, r *http.Request) {
 		formatedTime := t.Format("2006-01-02 15:04:05")
 		responseDashboard.Lastchange = formatedTime
 
+		if len(AllNotification)>0 {
+			for i:=0; i<len(AllNotification); i++ {
+				if AllNotification[i].Country==apendix {
+					if AllNotification[i].Event=="INVOKE" {
+						switch r.Method {
+							case http.MethodGet: {
+	
+								currentWebhook:=data.WebhookInvoke{}
+								currentWebhook.Country=apendix
+								currentWebhook.Event="INVOKE"
+								currentWebhook.Id=AllNotification[i].Id
+								currentWebhook.Time=formatedTime
+	
+								currentWebhookJSON, err:= json.Marshal(currentWebhook)
+								if err != nil {
+									log.Println("Error during request creation. Error:", err)
+									return
+									}
+	
+								req, err := http.NewRequest(http.MethodPost, AllNotification[i].Url, bytes.NewBuffer(currentWebhookJSON))
+								if err != nil {
+									log.Println("Error during request creation. Error:", err)
+									return
+									}
+	
+								// Perform invocation
+								client1 := http.Client{}
+								res, err := client1.Do(req)
+								if err != nil {
+									log.Println("Error in HTTP request. Error:", err)
+									return
+									}
+	
+								// Read the response
+								response, err := io.ReadAll(res.Body)
+								if err != nil {
+									log.Println("Something is wrong with invocation response. Error:", err)
+									return
+									}
+	
+								log.Println("Webhook " + AllNotification[i].Url + " invoked. Received status code " + strconv.Itoa(res.StatusCode) +
+								" and body: " + string(response))
+							}
+						default:
+							http.Error(w, "Method "+r.Method+" not supported for ", http.StatusMethodNotAllowed)
+						}
+					}
+				}
+			}
+		}
+
 		request,err:=json.Marshal(responseDashboard)
 		if err != nil {
 			http.Error(w, "Error during pretty printing", http.StatusInternalServerError)
@@ -180,5 +233,6 @@ func DashboardGet(w http.ResponseWriter, r *http.Request) {
 			}
 		
 		fmt.Fprintln(w,string(request))
+	
 	} 
 }

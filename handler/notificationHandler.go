@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	firebase "firebase.google.com/go"
 	"google.golang.org/api/option"
@@ -16,7 +17,7 @@ import (
 // Storage of all registered notifications during service run
 var AllNotification []data.Notification
 
-const collection = "messages"
+const collection = "Notifications"
 
 // Switch between differnet methods for given handler, new configuration and all configurations
 func NotificationsHandler(w http.ResponseWriter, r *http.Request) {
@@ -50,7 +51,11 @@ func NotificationsPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("allow-control-allow-methods", "POST")
 
 	var notification data.Notification
-	var CurrentNotification data.CurrentNotification
+	var currentNotification data.CurrentNotification
+	var notificationFirebase data.NotificationFirebase
+
+	t := time.Now()
+	formatedTime := t.Format("2006-01-02 15:04:05")
 
 	err := json.NewDecoder(r.Body).Decode(&notification)
 	if err != nil {
@@ -59,9 +64,14 @@ func NotificationsPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notification.Id=GenerateRandomString(13)
+	notification.Id=IdGenerator(data.ID_LENGTH)
+	currentNotification.Id=notification.Id
 
-	CurrentNotification.Id=notification.Id
+	notificationFirebase.Id=notification.Id
+	notificationFirebase.Time=formatedTime
+	notificationFirebase.Country=notification.Country
+	notificationFirebase.Event=notification.Event
+	notificationFirebase.Url=notification.Url
 
 	AllNotification = append(AllNotification, notification)
 
@@ -82,7 +92,7 @@ func NotificationsPost(w http.ResponseWriter, r *http.Request) {
 		}
 
 	ref:=client.Collection(collection).NewDoc()
-	result,err:=ref.Set(ctx,notification)
+	result,err:=ref.Set(ctx,notificationFirebase)
 	if err != nil {
 		log.Println(err)
 		return
@@ -98,7 +108,7 @@ func NotificationsPost(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(CurrentNotification)
+    json.NewEncoder(w).Encode(currentNotification)
 }
 
 // Function to retrieve all registered notifications GET Method

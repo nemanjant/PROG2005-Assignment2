@@ -2,8 +2,11 @@ package handler
 
 import (
 	"assignment2/myapp/data"
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -67,6 +70,58 @@ func ConfigurationsPost(w http.ResponseWriter, r *http.Request) {
 	registration.Lastchange = formatedTime
 
 	allRegistrations = append(allRegistrations, registration)
+
+	// Webhook notification on REGISTER event
+	if len(AllNotification)>0 {
+		for i:=0; i<len(AllNotification); i++ {
+			if AllNotification[i].Country==registration.ISOcode {
+				if AllNotification[i].Event=="REGISTER" {
+					switch r.Method {
+						case http.MethodPost: {
+
+							currentWebhook:=data.WebhookInvoke{}
+							currentWebhook.Country=registration.ISOcode
+							currentWebhook.Event="REGISTER"
+							currentWebhook.Id=AllNotification[i].Id
+							currentWebhook.Time=formatedTime
+
+							currentWebhookJSON, err:= json.Marshal(currentWebhook)
+							if err != nil {
+								log.Println("Error during request creation. Error:", err)
+								return
+								}
+
+							req, err := http.NewRequest(http.MethodPost, AllNotification[i].Url, bytes.NewBuffer(currentWebhookJSON))
+							if err != nil {
+								log.Println("Error during request creation. Error:", err)
+								return
+								}
+
+							// Perform invocation
+							client := http.Client{}
+							res, err := client.Do(req)
+							if err != nil {
+								log.Println("Error in HTTP request. Error:", err)
+								return
+								}
+
+							// Read the response
+							response, err := io.ReadAll(res.Body)
+							if err != nil {
+								log.Println("Something is wrong with invocation response. Error:", err)
+								return
+								}
+
+							log.Println("Webhook " + AllNotification[i].Url + " invoked. Received status code " + strconv.Itoa(res.StatusCode) +
+							" and body: " + string(response))
+						}
+					default:
+						http.Error(w, "Method "+r.Method+" not supported for ", http.StatusMethodNotAllowed)
+					}
+				}
+			}
+		}
+	}
 
 	w.WriteHeader(http.StatusCreated)
     json.NewEncoder(w).Encode(currentRegistration)
@@ -150,7 +205,61 @@ func ConfigurationPut(w http.ResponseWriter, r *http.Request) {
 		updateRegistartion.Lastchange = formatedTime
 
 		allRegistrations[id]=updateRegistartion
+
+		// Webhook notification on CHANGE event
+		if len(AllNotification)>0 {
+			for i:=0; i<len(AllNotification); i++ {
+				if AllNotification[i].Country==allRegistrations[id].ISOcode {
+					if AllNotification[i].Event=="CHANGE" {
+						switch r.Method {
+							case http.MethodPut: {
+
+								currentWebhook:=data.WebhookInvoke{}
+								currentWebhook.Country=AllNotification[i].Country
+								currentWebhook.Event="CHANGE"
+								currentWebhook.Id=AllNotification[i].Id
+								currentWebhook.Time=formatedTime
+
+								currentWebhookJSON, err:= json.Marshal(currentWebhook)
+								if err != nil {
+									log.Println("Error during request creation. Error:", err)
+									return
+									}
+
+								req, err := http.NewRequest(http.MethodPost, AllNotification[i].Url, bytes.NewBuffer(currentWebhookJSON))
+								if err != nil {
+									log.Println("Error during request creation. Error:", err)
+									return
+									}
+
+								// Perform invocation
+								client := http.Client{}
+								res, err := client.Do(req)
+								if err != nil {
+									log.Println("Error in HTTP request. Error:", err)
+									return
+									}
+
+								// Read the response
+								response, err := io.ReadAll(res.Body)
+								if err != nil {
+									log.Println("Something is wrong with invocation response. Error:", err)
+									return
+									}
+
+								log.Println("Webhook " + AllNotification[i].Url + " invoked. Received status code " + strconv.Itoa(res.StatusCode) +
+								" and body: " + string(response))
+							}
+						default:
+							http.Error(w, "Method "+r.Method+" not supported for ", http.StatusMethodNotAllowed)
+						}
+					}
+				}
+			}
+		}
+		
 		fmt.Fprintln(w, "\n\tConfiguration with ID", value,"is updated. Dashboard registry updated...")
+		
 		}
 }
 
@@ -178,6 +287,61 @@ func ConfigurationDelete(w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Fprintln(w, "\n\tConfiguration with ID", id+1,"is removed. Dashboard registry updated...")
 
+		t := time.Now()
+		formatedTime := t.Format("2006-01-02 15:04:05")
+
+		// Webhook notification on DELETE event
+		if len(AllNotification)>0 {
+			for i:=0; i<len(AllNotification); i++ {
+				if AllNotification[i].Country==allRegistrations[id].ISOcode {
+					if AllNotification[i].Event=="DELETE" {
+						switch r.Method {
+							case http.MethodDelete: {
+
+								currentWebhook:=data.WebhookInvoke{}
+								currentWebhook.Country=AllNotification[i].Country
+								currentWebhook.Event="DELETE"
+								currentWebhook.Id=AllNotification[i].Id
+								currentWebhook.Time=formatedTime
+
+								currentWebhookJSON, err:= json.Marshal(currentWebhook)
+								if err != nil {
+									log.Println("Error during request creation. Error:", err)
+									return
+									}
+
+								req, err := http.NewRequest(http.MethodPost, AllNotification[i].Url, bytes.NewBuffer(currentWebhookJSON))
+								if err != nil {
+									log.Println("Error during request creation. Error:", err)
+									return
+									}
+
+								// Perform invocation
+								client := http.Client{}
+								res, err := client.Do(req)
+								if err != nil {
+									log.Println("Error in HTTP request. Error:", err)
+									return
+									}
+
+								// Read the response
+								response, err := io.ReadAll(res.Body)
+								if err != nil {
+									log.Println("Something is wrong with invocation response. Error:", err)
+									return
+									}
+
+								log.Println("Webhook " + AllNotification[i].Url + " invoked. Received status code " + strconv.Itoa(res.StatusCode) +
+								" and body: " + string(response))
+							}
+						default:
+							http.Error(w, "Method "+r.Method+" not supported for ", http.StatusMethodNotAllowed)
+						}
+					}
+				}
+			}
+		}
+
 		allRegistrations = append(allRegistrations[:id],allRegistrations[id+1:]...)
 
 		for i:=0; i<register-1; i++ {
@@ -185,8 +349,8 @@ func ConfigurationDelete(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		idRegistration--
-		if register==0 {
-			idRegistration=1
-		}
+	idRegistration--
+	if register==0 {
+		idRegistration=1
+	}	
 }
