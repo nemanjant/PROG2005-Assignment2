@@ -103,3 +103,12 @@ type NotificationFirebase struct {
 	Time    string `json:"time"`
 	Url     string `json:"url"`
 }
+
+type Status struct {
+	ContriesApi int     `json:"countries_api"`
+	MeteoApi    int     `json:"meteo_api"`
+	CurrencyApi int     `json:"currency_api"`
+	Webhooks    int     `json:"webhooks"`
+	Version     string  `json:"version"`
+	UpTime      float64 `json:"uptime"`
+}
