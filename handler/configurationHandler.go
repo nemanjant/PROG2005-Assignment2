@@ -257,9 +257,7 @@ func ConfigurationPut(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-		
 		fmt.Fprintln(w, "\n\tConfiguration with ID", value,"is updated. Dashboard registry updated...")
-		
 		}
 }
 

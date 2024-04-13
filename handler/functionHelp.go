@@ -18,7 +18,7 @@ func GetContent(url string) ([]byte, error) {
 }
 
 // Function to create random string value
-func IdGenerator(idlength int) string {
+func IdsGenerator(idlength int) string {
     const char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     start := rand.NewSource(time.Now().UnixNano())
     new := rand.New(start)
@@ -28,4 +28,15 @@ func IdGenerator(idlength int) string {
         id[i] = char[new.Intn(len(char))]
     }
     return string(id)
+}
+
+// Function to create random string value, time independent
+func RandString(n int) string {
+    const alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    var bytes = make([]byte, n)
+    rand.Read(bytes)
+    for i, b := range bytes {
+        bytes[i] = alphanum[b % byte(len(alphanum))]
+    }
+    return string(bytes)
 }

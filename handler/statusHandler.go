@@ -40,7 +40,7 @@ func StatusHandlerGet(w http.ResponseWriter, r *http.Request) {
 		//Current version of API;
 		Version:    data.VERSION,
 		Webhooks:   len(AllNotification),
-		UpTime:     time.Now().Sub(start).Seconds(),
+		UpTime:     time.Since(start).Seconds(),
 	}
 
 	responseStruct,err:=json.Marshal(status)

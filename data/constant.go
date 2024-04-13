@@ -11,6 +11,6 @@ const PATH_RESTCOUNTRIES_API = "http://129.241.150.113:8080/v3.1/alpha/"
 const PATH_RESTCOUNTRIES_API_NAME = "http://129.241.150.113:8080/v3.1/name/"
 const PATH_CURRENCY_API = "http://129.241.150.113:9090/currency/"
 const PATH_NOTIFICATION_INVOCATION = "/dashboard/v1/invocation"
-const PATH_FIREBASE = "https://console.firebase.google.com/u/0/project/assignment2-8c8dd/firestore/databases/-default-/data/~2FNotifications~2FgYfrP8BVIZYcPBC259Ut"
+const PATH_FIREBASE = "https://console.firebase.google.com/u/0/project/assignment2-8c8dd/firestore/databases/-default-/data/"
 const ID_LENGTH = 13
 const VERSION = "v1"

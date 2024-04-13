@@ -64,8 +64,9 @@ func NotificationsPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notification.Id=IdGenerator(data.ID_LENGTH)
-	currentNotification.Id=notification.Id
+	id:=RandString(data.ID_LENGTH)
+	notification.Id=id
+	currentNotification.Id=id
 
 	notificationFirebase.Id=notification.Id
 	notificationFirebase.Time=formatedTime
