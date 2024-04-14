@@ -10,6 +10,14 @@ import (
 
 func main() {
 
+	//Reading Firestore database and retrieving stored notificiations
+	var notificationFirestore data.Notification
+	var FirestoreNotification []data.Notification
+	firestoreData:=handler.ReadFirestore(notificationFirestore,FirestoreNotification)
+
+	//Adding stored notifications from Firestore to current sesion
+	handler.AllNotification=append(handler.AllNotification, firestoreData...)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		log.Println("$PORT has not been set. Default: 8080")

@@ -1,10 +1,18 @@
 package handler
 
 import (
+	"assignment2/myapp/data"
+	"context"
+	"fmt"
 	"io"
+	"log"
 	"math/rand"
 	"net/http"
 	"time"
+
+	firebase "firebase.google.com/go"
+	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 // Function to retrieve and close given URL
@@ -18,7 +26,7 @@ func GetContent(url string) ([]byte, error) {
 }
 
 // Function to create random string value
-func IdsGenerator(idlength int) string {
+func IdGenerator(idlength int) string {
     const char = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     start := rand.NewSource(time.Now().UnixNano())
     new := rand.New(start)
@@ -39,4 +47,42 @@ func RandString(n int) string {
         bytes[i] = alphanum[b % byte(len(alphanum))]
     }
     return string(bytes)
+}
+
+// Function to retrieve stored notificications from Firestore
+func ReadFirestore(n data.Notification, m []data.Notification) (mn []data.Notification){
+	ctx:= context.Background()
+	opt := option.WithCredentialsFile("./credentials/assignment2credentials.json")
+	app, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+		fmt.Printf("error initializing app: %v", err)
+  		return 
+		}
+
+	client, err:= app.Firestore(ctx)
+	if err != nil {
+		log.Println(err)
+		return
+		}
+
+	iter := client.Collection(data.COLLECTION).Documents(ctx)
+	defer iter.Stop() 
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Println(err)
+		return
+		}
+
+		if err := doc.DataTo(&n); err != nil {
+			log.Println(err)
+			return
+		}
+		m = append(m, n)
+	}
+
+    return m
 }

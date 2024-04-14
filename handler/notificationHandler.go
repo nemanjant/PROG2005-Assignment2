@@ -17,8 +17,6 @@ import (
 // Storage of all registered notifications during service run
 var AllNotification []data.Notification
 
-const collection = "Notifications"
-
 // Switch between differnet methods for given handler, new configuration and all configurations
 func NotificationsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -64,7 +62,7 @@ func NotificationsPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id:=RandString(data.ID_LENGTH)
+	id:=IdGenerator(data.ID_LENGTH)
 	notification.Id=id
 	currentNotification.Id=id
 
@@ -92,7 +90,7 @@ func NotificationsPost(w http.ResponseWriter, r *http.Request) {
 		return
 		}
 
-	ref:=client.Collection(collection).NewDoc()
+	ref:=client.Collection(data.COLLECTION).NewDoc()
 	result,err:=ref.Set(ctx,notificationFirebase)
 	if err != nil {
 		log.Println(err)

@@ -14,3 +14,4 @@ const PATH_NOTIFICATION_INVOCATION = "/dashboard/v1/invocation"
 const PATH_FIREBASE = "https://console.firebase.google.com/u/0/project/assignment2-8c8dd/firestore/databases/-default-/data/"
 const ID_LENGTH = 13
 const VERSION = "v1"
+const COLLECTION = "Notifications"
