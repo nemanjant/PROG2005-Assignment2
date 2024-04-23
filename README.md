@@ -344,10 +344,23 @@ For given endpoint input http://localhost:8080/dashboard/v1/status, result is:
 
 
 ## Deployment
-The service is to be deployed on an IaaS solution OpenStack using Docker. URL of deployed service is 
+The service is to be deployed on an IaaS solution OpenStack using Docker. URL of deployed service is 10.212.171.38:80.
+Accordingly to that we will have five resource root paths:
+
+_Default handler info page:_ 10.212.171.38:80/
+
+_Registration of dashboard:_ 10.212.171.38:80/dashboard/v1/registrations/
+
+_Invoking populated dashboard:_ 10.212.171.38:80/dashboard/v1/dashboards/
+
+_Registration of webhooks:_ 10.212.171.38:80/dashboard/v1/notifications/
+
+_Status o all individual services:_ 10.212.171.38:80/dashboard/v1/status/
+
+All endpoints will have same functionality as those above, deployed localy.
 
 
 ## Authors and acknowledgment
-Code written by Nemanja Tosic and Malin Sofie Strøm Grytan
+Code written by Nemanja Tosic
 
 
